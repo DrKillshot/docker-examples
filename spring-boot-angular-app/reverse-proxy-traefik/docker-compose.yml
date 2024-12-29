@@ -1,0 +1,47 @@
+services:
+  angular:
+    build:
+      dockerfile: etc/angular/Dockerfile
+    image: spring-angular-frontend
+    ports:
+      - "5555:5555" # Remove if we only want to expose the service through traefik
+    networks:
+      - spring-angular-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.angular.rule=Host(`localhost`) && PathPrefix(`/`)"
+      - "traefik.http.services.angular.loadbalancer.server.port=5555"
+  spring:
+    build:
+      dockerfile: etc/spring/Dockerfile
+    image: spring-angular-backend
+    ports:
+      - "666:666" # Remove if we only want to expose the service through traefik
+    networks:
+      - spring-angular-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.spring.rule=Host(`localhost`) && PathPrefix(`/api`)"
+      - "traefik.http.services.spring.loadbalancer.server.port=666"
+  traefik:
+    image: traefik:v3.2.3
+    command:
+      - "--api.insecure=true"  # Enable the Traefik dashboard (optional, remove for production)
+      - "--entrypoints.web.address=:80"
+      - "--providers.docker=true"
+    depends_on:
+      - angular
+      - spring
+    labels:
+      - "traefik.enable=true"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    ports:
+      - "80:80"
+      - "8080:8080"  # Optional: Traefik dashboard on port 8080 (for monitoring)
+    networks:
+      - spring-angular-network
+
+networks:
+  spring-angular-network:
+    driver: bridge

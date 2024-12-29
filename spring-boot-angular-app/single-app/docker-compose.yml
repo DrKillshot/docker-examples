@@ -1,0 +1,7 @@
+services:
+  backend:
+    build:
+      dockerfile: ./Dockerfile
+    image: spring-angular-sa
+    ports:
+      - "666:666"

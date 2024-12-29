@@ -1,0 +1,21 @@
+services:
+  angular:
+    build:
+      dockerfile: etc/angular/Dockerfile
+    image: spring-angular-frontend
+    ports:
+      - "5555:5555"
+    networks:
+      - spring-angular-network
+  spring:
+    build:
+      dockerfile: etc/spring/Dockerfile
+    image: spring-angular-backend
+    ports:
+      - "666:666"
+    networks:
+      - spring-angular-network
+
+networks:
+  spring-angular-network:
+    driver: bridge

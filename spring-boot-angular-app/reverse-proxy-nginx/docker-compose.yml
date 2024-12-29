@@ -1,0 +1,32 @@
+services:
+  angular:
+    build:
+      dockerfile: etc/angular/Dockerfile
+    image: spring-angular-frontend
+    ports:
+      - "5555:5555" # Remove if we only want to expose the service through nginx
+    networks:
+      - spring-angular-network
+  spring:
+    build:
+      dockerfile: etc/spring/Dockerfile
+    image: spring-angular-backend
+    ports:
+      - "666:666" # Remove if we only want to expose the service through nginx
+    networks:
+      - spring-angular-network
+  nginx:
+    image: nginx:latest
+    depends_on:
+      - angular
+      - spring
+    volumes:
+      - ./etc/nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+    networks:
+      - spring-angular-network
+
+networks:
+  spring-angular-network:
+    driver: bridge
